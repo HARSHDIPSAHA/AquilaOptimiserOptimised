@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.special import gamma
+import math
 from opfunu.cec_based import cec2014, cec2017, cec2020, cec2022
 import pandas as pd
 from tqdm import tqdm
@@ -57,7 +59,7 @@ def aquila_optimizer(fitness_function, bounds, dim, max_evals, seed=None):
                     x = r * np.sin(theta)
                     y = r * np.cos(theta)
 
-                    sigma = (np.math.gamma(1+beta)*np.sin(np.pi*beta/2)/(np.math.gamma((1+beta)/2)*beta*2**((beta-1)/2)))**(1/beta)
+                    sigma = (gamma(1 + beta) * np.sin(np.pi * beta / 2) / (gamma((1 + beta) / 2) * beta * 2 ** ((beta - 1) / 2))) ** (1 / beta)
                     u = np.random.randn(dim) * sigma
                     v = np.random.randn(dim)
                     levy = 0.01 * u / np.abs(v)**(1/beta)
