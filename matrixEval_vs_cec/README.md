@@ -16,3 +16,11 @@ Edit
 fitness[i] = fitness_function(positions[i])  # This is func.evaluate(position[i])
 That’s how the fitness value is calculated — it's just the value of the test function at that input point.
 
+
+
+ao_results.csv: Contains 50 best fitness values for each function (one per run).
+
+ao_statistics.csv: Contains the mean, std, min, median, and max of those 50 values per function.
+
+
+
