@@ -57,7 +57,9 @@ def fitness_function(x):
         return obj + 1e6 * violation
     return obj
 
-def mvao_multiple_disc_clutch_brake(max_iter=500, population_size=50):
+def mvao_multiple_disc_clutch_brake(max_iter=500, population_size=50, random_state=None):
+    if random_state is not None:
+        np.random.seed(random_state)#ahh..... reproducibility
     dim = 5
     lb = np.array([60.0, 90.0, 1.0, 600.0, 2.0])
     ub = np.array([80.0, 110.0, 3.0, 1000.0, 9.0])
@@ -110,7 +112,7 @@ def mvao_multiple_disc_clutch_brake(max_iter=500, population_size=50):
     constraints_satisfied = all(g >= 0 for g in final_constraints)
     return X_best, final_obj, constraints_satisfied
 
-best_solution, best_fitness, constraints_satisfied = mvao_multiple_disc_clutch_brake()
+best_solution, best_fitness, constraints_satisfied = mvao_multiple_disc_clutch_brake(random_state=42)
 
 print("\nMultiple Disc Clutch Brake Design Results:")
 print(f"Inner radius (ri): {best_solution[0]:.6f}")

@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from time import time
-
+import matplotlib
+matplotlib.use('TkAgg')
 # MVAO implementation with reflective boundaries
 def reflective_boundaries(position, lb, ub):
     """Apply reflective boundary handling."""

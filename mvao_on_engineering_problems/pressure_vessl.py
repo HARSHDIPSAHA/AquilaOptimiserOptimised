@@ -32,7 +32,9 @@ def fitness_function(x):
         return obj + 1e6 * violation
     return obj
 
-def mvao_pressure_vessel(max_iter=500, population_size=50):
+def mvao_pressure_vessel(max_iter=500, population_size=50,random_state=None):
+    if random_state is not None:
+        np.random.seed(random_state)#ahh..... reproducibility
     dim = 4
     lb = np.array([0.0625, 0.0625, 10.0, 10.0])
     ub = np.array([99.0, 99.0, 200.0, 200.0])
@@ -82,7 +84,7 @@ def mvao_pressure_vessel(max_iter=500, population_size=50):
     constraints_satisfied = all(g <= 0 for g in final_constraints)
     return X_best, final_obj, constraints_satisfied
 
-best_solution, best_fitness, constraints_satisfied = mvao_pressure_vessel()
+best_solution, best_fitness, constraints_satisfied = mvao_pressure_vessel(random_state=42)
 print("\nPressure Vessel Design Results:")
 print(f"Shell thickness (Ts): {best_solution[0]:.6f}")
 print(f"Head thickness (Th): {best_solution[1]:.6f}")

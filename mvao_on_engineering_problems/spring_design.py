@@ -30,7 +30,9 @@ def fitness_function(x):
         return obj + 1e6 * violation
     return obj
 
-def mvao_tension_compression_spring(max_iter=500, population_size=50):
+def mvao_tension_compression_spring(max_iter=500, population_size=50,random_state=None):
+    if random_state is not None:
+        np.random.seed(random_state)#ahh..... reproducibility
     dim = 3
     lb = np.array([0.05, 0.25, 2.0])
     ub = np.array([2.0, 1.3, 15.0])
@@ -80,7 +82,7 @@ def mvao_tension_compression_spring(max_iter=500, population_size=50):
     constraints_satisfied = all(g <= 0 for g in final_constraints)
     return X_best, final_obj, constraints_satisfied
 
-best_solution, best_fitness, constraints_satisfied = mvao_tension_compression_spring()
+best_solution, best_fitness, constraints_satisfied = mvao_tension_compression_spring(random_state=42)
 print("\nTension/Compression Spring Design Results:")
 print(f"Wire diameter (d): {best_solution[0]:.6f}")
 print(f"Mean coil diameter (D): {best_solution[1]:.6f}")
