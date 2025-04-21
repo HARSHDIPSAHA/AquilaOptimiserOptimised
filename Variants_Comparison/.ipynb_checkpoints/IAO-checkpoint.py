@@ -1,18 +1,32 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[20]:
 
 
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 import matplotlib
-from scipy.special import gamma
 from matplotlib.backend_bases import MouseButton
+from scipy.stats import t
 matplotlib.use('TkAgg')
 
 def distance(position, xprey, yprey):
     return np.sqrt((position[0] - xprey)**2 + (position[1] - yprey)**2)
+
+def tent_map(n, x0=0.7):
+    """Improved tent chaos map."""
+    x = np.zeros(n)
+    x[0] = x0
+    for i in range(n - 1):
+        if x[i] < 0.5:
+            x[i+1] = 2 * x[i]
+        else:
+            x[i+1] = 2 * (1 - x[i])
+        # Introduce a small perturbation to avoid fixed points and cycles
+        x[i+1] = (1 - 1e-6) * x[i+1] + 1e-6 * np.random.rand()
+    return x
 
 plt.figure(figsize=(8, 8))
 plt.grid(True)
@@ -55,11 +69,18 @@ ub = 100
 # AO Parameters
 alpha = 0.1
 delta = 0.1
-beta = 1.8  # For Lévy flight
+beta = 1.5  # For Lévy flight
 
 X_best = positions[0].copy()
 best_fitness = float('inf')
 convergence_curve = np.zeros(max_iter)
+
+# Initialize population using improved tent chaos map
+initial_positions = np.zeros((num_aquilas, dim))
+for d in range(dim):
+    chaos_sequence = tent_map(num_aquilas, np.random.rand())
+    initial_positions[:, d] = lb + (ub - lb) * chaos_sequence
+positions = initial_positions.copy()
 
 # Initialize best solution
 for i in range(num_aquilas):
@@ -67,11 +88,6 @@ for i in range(num_aquilas):
     if current_fitness < best_fitness:
         best_fitness = current_fitness
         X_best = positions[i].copy()
-
-def reflective_boundaries(position, lb, ub):
-    position = np.where(position < lb, 2 * lb - position, position)
-    position = np.where(position > ub, 2 * ub - position, position)
-    return position
 
 plt.figure(figsize=(8, 8))
 for iter in range(max_iter):
@@ -86,45 +102,46 @@ for iter in range(max_iter):
 
     a = 2 * (1 - iter/max_iter)  # Exploration-exploitation balance
 
-    # Calculate weighted mean position
-    fitness_values = np.array([distance(pos, prey_pos[0], prey_pos[1]) for pos in positions])
-    weights = 1 / (fitness_values + np.finfo(float).eps)
-    weighted_mean = np.sum(positions * weights[:, np.newaxis], axis=0) / np.sum(weights)
+    # Adaptive t-distribution parameter
+    df = 5 + 95 * (iter / max_iter)  # Degrees of freedom, increases over time
+
+    # Calculate mean position
+    X_M = np.mean(positions, axis=0)
 
     for i in range(num_aquilas):
         if iter <= (2/3)*max_iter:  # Exploration phase
             if np.random.rand() < 0.5:
-                # Expanded exploration (High soar with vertical stoop) with weighted mean
-                positions[i] = X_best * (1 - iter/max_iter) + (weighted_mean - X_best) * np.random.rand()
+                # Expanded exploration (High soar with vertical stoop)
+                positions[i] = X_best * (1 - iter/max_iter) + (X_M - X_best) * t.rvs(df, size=dim)
             else:
-                # Narrowed exploration (Contour flight with short glide) with weighted mean
+                # Narrowed exploration (Contour flight with short glide)
                 r = np.random.rand()
                 theta = np.random.rand() * 2 * np.pi
                 x = r * np.sin(theta)
                 y = r * np.cos(theta)
 
                 # Lévy flight calculation
-                sigma = (gamma(1 + beta) * np.sin(np.pi * beta / 2) /(gamma((1 + beta) / 2) * beta * 2**((beta - 1) / 2)))**(1 / beta)
-                u = np.random.randn(dim) * sigma
-                v = np.random.randn(dim)
+                sigma = (math.gamma(1+beta)*math.sin(math.pi*beta/2)/(math.gamma((1+beta)/2)*beta*2**((beta-1)/2)))**(1/beta)
+                u = t.rvs(df, size=dim) * sigma # Using t-distribution for Lévy-like steps
+                v = t.rvs(df, size=dim)
                 levy = 0.01 * u / np.abs(v)**(1/beta)
 
                 positions[i] = X_best * levy + positions[np.random.randint(num_aquilas)] + (y - x) * np.random.rand()
         else:  # Exploitation phase
             if np.random.rand() < 0.5:
-                # Expanded exploitation (Low flight with gradual descent) with weighted mean
-                positions[i] = (X_best * weighted_mean) * alpha - np.random.rand() + ((ub - lb) * np.random.rand() + lb) * delta
+                # Expanded exploitation (Low flight with gradual descent)
+                positions[i] = (X_best - X_M) * alpha - np.random.rand() + ((ub - lb) * np.random.rand() + lb) * delta
             else:
-                # Narrowed exploitation (Walk and grab prey) with weighted mean
+                # Narrowed exploitation (Walk and grab prey)
                 QF = iter**((2*np.random.rand()-1)/(1 - max_iter)**2)
                 G1 = 2 * np.random.rand() - 1
                 G2 = 2 * (1 - iter/max_iter)
-                levy = np.random.rand()  # Simplified Lévy for visualization
+                levy = np.random.randn(dim) * 0.1 # Gaussian-like steps for exploitation
 
                 positions[i] = QF * X_best - G1 * positions[i] * np.random.rand() - G2 * levy + np.random.rand()
 
-        # Reflective Boundary Handling
-        positions[i] = reflective_boundaries(positions[i], lb, ub)
+        # Boundary check
+        positions[i] = np.clip(positions[i], lb, ub)
 
         # Update best solution
         current_fitness = distance(positions[i], prey_pos[0], prey_pos[1])
@@ -147,7 +164,7 @@ plt.figure(figsize=(10, 6))
 plt.semilogy(convergence_curve, 'b', linewidth=2)
 plt.xlabel('Iteration')
 plt.ylabel('Best Distance to Prey')
-plt.title('Modified Aquila Optimizer Convergence Curve')
+plt.title('Aquila Optimizer Convergence Curve')
 plt.grid(True)
 plt.show()
 

@@ -1,13 +1,6 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[2]:
-
-
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
-from scipy.special import gamma
 from matplotlib.backend_bases import MouseButton
 matplotlib.use('TkAgg')
 
@@ -28,7 +21,7 @@ def onclick(event):
     if event.button is MouseButton.RIGHT:
         plt.close()
         return
-
+    
     if event.button is MouseButton.LEFT:
         if prey_pos is None:
             prey_pos = np.array([event.xdata, event.ydata])
@@ -55,7 +48,7 @@ ub = 100
 # AO Parameters
 alpha = 0.1
 delta = 0.1
-beta = 1.8  # For Lévy flight
+beta = 1.5  # For Lévy flight
 
 X_best = positions[0].copy()
 best_fitness = float('inf')
@@ -68,75 +61,68 @@ for i in range(num_aquilas):
         best_fitness = current_fitness
         X_best = positions[i].copy()
 
-def reflective_boundaries(position, lb, ub):
-    position = np.where(position < lb, 2 * lb - position, position)
-    position = np.where(position > ub, 2 * ub - position, position)
-    return position
-
 plt.figure(figsize=(8, 8))
 for iter in range(max_iter):
     plt.clf()
     plt.grid(True)
     plt.xlim(-10, 110)
     plt.ylim(-10, 110)
-
+    
     plt.plot(prey_pos[0], prey_pos[1], 'ks', markersize=12, markerfacecolor='magenta')
     plt.plot(positions[:, 0], positions[:, 1], 'ro', markersize=8, markerfacecolor='blue')
     plt.plot(X_best[0], X_best[1], 'g*', markersize=15, markerfacecolor='lime')
-
+    
     a = 2 * (1 - iter/max_iter)  # Exploration-exploitation balance
-
-    # Calculate weighted mean position
-    fitness_values = np.array([distance(pos, prey_pos[0], prey_pos[1]) for pos in positions])
-    weights = 1 / (fitness_values + np.finfo(float).eps)
-    weighted_mean = np.sum(positions * weights[:, np.newaxis], axis=0) / np.sum(weights)
-
+    
+    # Calculate mean position
+    X_M = np.mean(positions, axis=0)
+    
     for i in range(num_aquilas):
         if iter <= (2/3)*max_iter:  # Exploration phase
             if np.random.rand() < 0.5:
-                # Expanded exploration (High soar with vertical stoop) with weighted mean
-                positions[i] = X_best * (1 - iter/max_iter) + (weighted_mean - X_best) * np.random.rand()
+                # Expanded exploration (High soar with vertical stoop)
+                positions[i] = X_best * (1 - iter/max_iter) + (X_M - X_best) * np.random.rand()
             else:
-                # Narrowed exploration (Contour flight with short glide) with weighted mean
+                # Narrowed exploration (Contour flight with short glide)
                 r = np.random.rand()
                 theta = np.random.rand() * 2 * np.pi
                 x = r * np.sin(theta)
                 y = r * np.cos(theta)
-
+                
                 # Lévy flight calculation
-                sigma = (gamma(1 + beta) * np.sin(np.pi * beta / 2) /(gamma((1 + beta) / 2) * beta * 2**((beta - 1) / 2)))**(1 / beta)
+                sigma = (np.math.gamma(1+beta)*np.sin(np.pi*beta/2)/(np.math.gamma((1+beta)/2)*beta*2**((beta-1)/2)))**(1/beta)
                 u = np.random.randn(dim) * sigma
                 v = np.random.randn(dim)
                 levy = 0.01 * u / np.abs(v)**(1/beta)
-
+                
                 positions[i] = X_best * levy + positions[np.random.randint(num_aquilas)] + (y - x) * np.random.rand()
         else:  # Exploitation phase
             if np.random.rand() < 0.5:
-                # Expanded exploitation (Low flight with gradual descent) with weighted mean
-                positions[i] = (X_best * weighted_mean) * alpha - np.random.rand() + ((ub - lb) * np.random.rand() + lb) * delta
+                # Expanded exploitation (Low flight with gradual descent)
+                positions[i] = (X_best * X_M) * alpha - np.random.rand() + ((ub - lb) * np.random.rand() + lb) * delta
             else:
-                # Narrowed exploitation (Walk and grab prey) with weighted mean
+                # Narrowed exploitation (Walk and grab prey)
                 QF = iter**((2*np.random.rand()-1)/(1 - max_iter)**2)
                 G1 = 2 * np.random.rand() - 1
                 G2 = 2 * (1 - iter/max_iter)
                 levy = np.random.rand()  # Simplified Lévy for visualization
-
+                
                 positions[i] = QF * X_best - G1 * positions[i] * np.random.rand() - G2 * levy + np.random.rand()
-
-        # Reflective Boundary Handling
-        positions[i] = reflective_boundaries(positions[i], lb, ub)
-
+        
+        # Boundary check
+        positions[i] = np.clip(positions[i], lb, ub)
+        
         # Update best solution
         current_fitness = distance(positions[i], prey_pos[0], prey_pos[1])
         if current_fitness < best_fitness:
             best_fitness = current_fitness
             X_best = positions[i].copy()
-
+    
     convergence_curve[iter] = best_fitness
-
+    
     if iter % 10 == 0:
         print(f'Iteration: {iter}, Best Distance: {best_fitness:.4f}')
-
+    
     plt.title(f'Aquila Optimizer - Iteration {iter+1}')
     plt.pause(0.01)
 
@@ -147,19 +133,6 @@ plt.figure(figsize=(10, 6))
 plt.semilogy(convergence_curve, 'b', linewidth=2)
 plt.xlabel('Iteration')
 plt.ylabel('Best Distance to Prey')
-plt.title('Modified Aquila Optimizer Convergence Curve')
+plt.title('Aquila Optimizer Convergence Curve')
 plt.grid(True)
 plt.show()
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-

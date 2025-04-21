@@ -7,7 +7,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
-from scipy.special import gamma
+import math
 from matplotlib.backend_bases import MouseButton
 matplotlib.use('TkAgg')
 
@@ -104,7 +104,7 @@ for iter in range(max_iter):
                 y = r * np.cos(theta)
 
                 # Lévy flight calculation
-                sigma = (gamma(1 + beta) * np.sin(np.pi * beta / 2) /(gamma((1 + beta) / 2) * beta * 2**((beta - 1) / 2)))**(1 / beta)
+                sigma = (np.math.gamma(1+beta)*np.sin(np.pi*beta/2)/(np.math.gamma((1+beta)/2)*beta*2**((beta-1)/2)))**(1/beta)
                 u = np.random.randn(dim) * sigma
                 v = np.random.randn(dim)
                 levy = 0.01 * u / np.abs(v)**(1/beta)
