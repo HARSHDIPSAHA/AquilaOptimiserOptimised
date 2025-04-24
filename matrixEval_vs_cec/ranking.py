@@ -35,6 +35,7 @@ df_means_17["Ranking"] = df_means_17[algo_columns_17].rank(axis=1, method='min')
 
 # Merge the new ranking into the original df
 df_17["Ranking"] = df_means_17["Ranking"]
-
+df_17.to_csv(r"H:\academics\SEM4\ai\project\gitRepo\AquilaOptimiserOptimised\matrixEval_vs_cec\17.csv", index=False)
+df_14.to_csv(r"H:\academics\SEM4\ai\project\gitRepo\AquilaOptimiserOptimised\matrixEval_vs_cec\14.csv", index=False)
 
 print(df_17)
