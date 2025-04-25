@@ -614,5 +614,5 @@ def run_cec_comparison(func_type:CECFunction, dim=10, runs=3):
 
 
 if __name__ == "__main__":
-    run_cec_comparison(CECFunction.SPHERE)
+    # run_cec_comparison(CECFunction.SPHERE)
     run_cec_comparison(CECFunction.RASTRIGIN)
