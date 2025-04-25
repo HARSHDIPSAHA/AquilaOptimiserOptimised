@@ -4,24 +4,97 @@ from enum import Enum
 import math
 import matplotlib
 matplotlib.use("TkAgg")
-# ======================
-# CEC Benchmark Functions
-# ======================
-class CECFunction(Enum):
-    SPHERE = 1
-    RASTRIGIN = 2
-    ACKLEY = 3
 
-def cec_function(x, func:CECFunction):
-    if func == CECFunction.SPHERE:
+# CEC Benchmark Functions
+class CECFunction(Enum):
+    F1 = 1   # Sphere
+    F2 = 2   # Elliptic
+    F3 = 3   # Bent Cigar
+    F4 = 4   # Discus
+    F5 = 5   # Rosenbrock
+    F6 = 6   # Ackley
+    F7 = 7   # Rastrigin
+    F8 = 8   # Schaffer F7
+    F9 = 9   # Griewank
+    F10 = 10  # Weierstrass
+    F11 = 11  # Katsuura
+    F12 = 12  # Lunacek bi-Rastrigin
+    F13 = 13  # Step
+    F14 = 14  # HappyCat
+    F15 = 15  # HGBat
+    F16 = 16  # Expanded Griewank plus Rosenbrock
+    F17 = 17  # Expanded Scaffer F6
+    # Composition Functions:
+    F18 = 18
+    F19 = 19
+    F20 = 20
+    F21 = 21
+    F22 = 22
+    F23 = 23
+    F24 = 24
+    F25 = 25
+    F26 = 26
+    F27 = 27
+    F28 = 28
+    F29 = 29
+    F30 = 30
+
+# Example approximations or placeholders
+def cec_function(x, func: CECFunction):
+    x = np.asarray(x)
+    if func == CECFunction.F1:
         return np.sum(x**2)
-    elif func == CECFunction.RASTRIGIN:
+    elif func == CECFunction.F2:
+        return np.sum(10**6**(np.arange(len(x))/(len(x)-1)) * x**2)
+    elif func == CECFunction.F3:
+        return x[0]**2 + 10**6 * np.sum(x[1:]**2)
+    elif func == CECFunction.F4:
+        return 10**6 * x[0]**2 + np.sum(x[1:]**2)
+    elif func == CECFunction.F5:
+        return np.sum(100*(x[1:] - x[:-1]**2)**2 + (x[:-1] - 1)**2)
+    elif func == CECFunction.F6:
+        return -20*np.exp(-0.2*np.sqrt(np.mean(x**2))) - \
+               np.exp(np.mean(np.cos(2*np.pi*x))) + 20 + np.e
+    elif func == CECFunction.F7:
         return 10*len(x) + np.sum(x**2 - 10*np.cos(2*np.pi*x))
-    elif func == CECFunction.ACKLEY:
-        return -20*np.exp(-0.2*np.sqrt(0.5*np.sum(x**2))) - \
-               np.exp(0.5*np.sum(np.cos(2*np.pi*x))) + 20 + np.e
+    elif func == CECFunction.F8:
+        return np.sum(np.power(np.sum(x[:i+1]**2), 0.25) *
+                      (1 + np.sin(50 * np.power(np.sum(x[:i+1]**2), 0.1))**2)
+                      for i in range(len(x)-1))
+    elif func == CECFunction.F9:
+        return 1 + (1/4000)*np.sum(x**2) - np.prod(np.cos(x/np.sqrt(np.arange(1, len(x)+1))))
+    elif func == CECFunction.F10:
+        a = 0.5
+        b = 3
+        kmax = 20
+        return np.sum([np.sum([a**k * np.cos(2*np.pi*b**k*(xi+0.5)) for k in range(kmax)])
+                      - len(x) * np.sum([a**k * np.cos(np.pi*b**k) for k in range(kmax)]) for xi in x])
+    elif func == CECFunction.F11:
+        return np.prod((1 + (np.arange(1, len(x)+1)) * (np.abs(x)**(0.5 + np.arange(1, len(x)+1)/100)))) - 1
+    elif func == CECFunction.F12:
+        return np.sum((x - 1)**2) + 10 * (len(x) - np.sum(np.cos(2*np.pi*(x - 1))))
+    elif func == CECFunction.F13:
+        return np.sum(np.floor(x + 0.5)**2)
+    elif func == CECFunction.F14:
+        alpha = 1/8
+        return np.sum((np.sum(x**2) - len(x))**2)**alpha + (0.5 * np.sum(x**2) + np.sum(x)) / len(x)
+    elif func == CECFunction.F15:
+        return (np.abs(np.sum(x**2)**2 - np.sum(x))**0.5) + (0.5 * np.sum(x**2) + np.sum(x)) / len(x)
+    elif func == CECFunction.F16:
+        # Simplified: combine Griewank and Rosenbrock
+        part1 = np.sum(100*(x[1:] - x[:-1]**2)**2 + (x[:-1] - 1)**2)
+        part2 = 1 + (1/4000)*np.sum(x**2) - np.prod(np.cos(x/np.sqrt(np.arange(1, len(x)+1))))
+        return part1 + part2
+    elif func == CECFunction.F17:
+        return np.sum(0.5 + (np.sin(np.sqrt(x[:-1]**2 + x[1:]**2))**2 - 0.5) /
+                      ((1 + 0.001*(x[:-1]**2 + x[1:]**2))**2))
+    elif CECFunction.F18.value <= func.value <= CECFunction.F30.value:
+        return composition_function(x, func.value)
     else:
         raise ValueError("Unsupported CEC function")
+
+def composition_function(x, fid):
+    return np.sum(np.sin(x)) + fid * 100  # placeholder
 
 class Metaheuristic:
     def __init__(self, name, **params):
@@ -542,10 +615,53 @@ class MPA(Metaheuristic):
             convergence[iter] = best_score
         return convergence
 
+# First install required package
+# pip install opfunu
+import numpy as np
+import matplotlib.pyplot as plt
+from opfunu.cec_based import cec2014, cec2017, cec2020, cec2022
+
+
+
 # ======================
-# Experimental Runner
+# CEC Function Loader
 # ======================
-def run_cec_comparison(func_type:CECFunction, dim=10, runs=3):
+
+# ======================
+# CEC Function Loader (Updated)
+# ======================
+
+def get_cec_functions(dim):
+    """Get all CEC functions for different years using official Opfunu API"""
+    funcs = []
+    
+    # CEC 2014 (F1-F30)
+    for fid in range(1, 31):
+        func_class = getattr(cec2014, f"F{fid}2014")
+        funcs.append(func_class(ndim=dim))
+    
+    # CEC 2017 (F1-F30)
+    for fid in range(1, 10):
+        func_class = getattr(cec2017, f"F{fid}2017")
+        funcs.append(func_class(ndim=dim))
+    
+    # CEC 2020 (F1-F10)
+    for fid in range(1, 11):
+        func_class = getattr(cec2020, f"F{fid}2020")
+        funcs.append(func_class(ndim=dim))
+    
+    # CEC 2022 (F1-F12)
+    for fid in range(1, 13):
+        func_class = getattr(cec2022, f"F{fid}2022")
+        funcs.append(func_class(ndim=dim))
+    
+    return funcs
+
+# ======================
+# Modified Experimental Setup
+# ======================
+import matplotlib.pyplot as plt
+def run_cec_comparison(dim=10, runs=10):
     algorithms = [
         PSO("PSO", w=0.7, c1=1.5, c2=1.5),
         GWO("GWO"),
@@ -558,61 +674,74 @@ def run_cec_comparison(func_type:CECFunction, dim=10, runs=3):
         MPA(),
     ]
     
-    results = {algo.name: [] for algo in algorithms}
+    # Load all CEC functions
+    cec_funcs = get_cec_functions(dim)
     
-    for run in range(runs):
-        print(f"Run {run+1}/{runs}")
-        for algo in algorithms:
-            convergence = algo.optimize(
-                func=lambda x: cec_function(x, func_type),
-                dim=dim,
-                lb=-100,
-                ub=100,
-                max_iter=500,
-                pop_size=30
-            )
-            results[algo.name].append(convergence)
-    
-    # Plotting configuration
-    plt.figure(figsize=(12, 8))
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
-            '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22']
-    markers = ['o', 's', 'D', '^', 'v', '<', '>', 'p', '*']
-    
-    # Plot each algorithm's convergence curve
-    for idx, algo in enumerate(algorithms):
-        # Average across runs if multiple runs
-        avg_curve = np.mean(results[algo.name], axis=0)
+    for func in cec_funcs:
+        print(f"\n=== Testing on {func.name} ===")
+        results = {algo.name: [] for algo in algorithms}
         
-        # Plot with unique color and marker style
-        plt.semilogy(avg_curve, 
-                    label=algo.name,
-                    color=colors[idx % len(colors)],
-                    marker=markers[idx % len(markers)],
-                    markevery=50,
-                    linewidth=2,
-                    alpha=0.8)
-    
-    # Plot formatting
-    plt.title(f'Algorithm Comparison on {func_type.name} Function', fontsize=14, pad=20)
-    plt.xlabel('Iteration', fontsize=12, labelpad=10)
-    plt.ylabel('Best Fitness (log scale)', fontsize=12, labelpad=10)
-    plt.grid(True, which='both', linestyle='--', alpha=0.6)
-    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
-    
-    # Axis limits and ticks
-    plt.xlim(left=0)
-    plt.xticks(np.arange(0, 501, 50))
-    plt.ylim(bottom=1e-10)  # Adjust based on your function's range
-    
-    # Save and show
-    plt.tight_layout()
-    plt.savefig(f'{func_type.name}_comparison.png', dpi=300, bbox_inches='tight')
-    plt.show()
+        for run in range(runs):
+            for algo in algorithms:
+                convergence = algo.optimize(
+                    func=func.evaluate,
+                    dim=dim,
+                    lb=func.lb[0],
+                    ub=func.ub[0],
+                    max_iter=500,
+                    pop_size=30
+                )
+                results[algo.name].append(convergence)
+
+        # Plotting inside the loop
+        plt.figure(figsize=(12, 8))
+        colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+                '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22']
+        markers = ['o', 's', 'D', '^', 'v', '<', '>', 'p', '*']
+        
+        for idx, algo in enumerate(algorithms):
+            avg_curve = np.mean(results[algo.name], axis=0)
+            plt.semilogy(avg_curve, 
+                        label=algo.name,
+                        color=colors[idx % len(colors)],
+                        marker=markers[idx % len(markers)],
+                        markevery=50,
+                        linewidth=2,
+                        alpha=0.8)
+        
+        plt.title(f'Algorithm Comparison on {func.name} Function', fontsize=14, pad=20)
+        plt.xlabel('Iteration', fontsize=12, labelpad=10)
+        plt.ylabel('Best Fitness (log scale)', fontsize=12, labelpad=10)
+        plt.grid(True, which='both', linestyle='--', alpha=0.6)
+        plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+        plt.xlim(left=0)
+        plt.xticks(np.arange(0, 501, 50))
+        plt.ylim(bottom=1e-10)
+        plt.tight_layout()
+        plt.savefig(f'{func.name}_comparison.png', dpi=300, bbox_inches='tight')
+        plt.show()
 
 
 
+
+# def plot_results(results, func_name):
+#     plt.figure(figsize=(12, 8))
+#     colors = plt.cm.tab20(np.linspace(0, 1, len(results)))
+    
+#     for (algo_name, curves), color in zip(results.items(), colors):
+#         avg_curve = np.mean(curves, axis=0)
+#         plt.semilogy(avg_curve, label=algo_name, color=color, linewidth=2)
+    
+#     plt.title(f'Algorithm Comparison on {func_name}', fontsize=14)
+#     plt.xlabel('Iteration')
+#     plt.ylabel('Fitness (log scale)')
+#     plt.legend()
+#     plt.grid(True)
+#     plt.savefig(f'{func_name}_comparison.png', dpi=300)
+#     plt.close()
+#     plt.show()
 
 if __name__ == "__main__":
-    # run_cec_comparison(CECFunction.SPHERE)
-    run_cec_comparison(CECFunction.RASTRIGIN)
+    run_cec_comparison(dim=10, runs=3)
+
+
