@@ -809,5 +809,3 @@ if __name__ == "__main__":
 # if __name__ == "__main__":
 #     run_cec_comparison(CECFunction.F10)
     
-
-
