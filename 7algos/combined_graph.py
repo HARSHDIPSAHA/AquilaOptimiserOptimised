@@ -737,7 +737,7 @@ def run_cec_comparison(dim=10, runs=10):
 
 
 if __name__ == "__main__":
-      run_cec_comparison(dim=10, runs=1)
+      run_cec_comparison(dim=10, runs=3)
 # def run_cec_comparison(func_type:CECFunction, dim=10, runs=3):
 #     algorithms = [
 #         PSO("PSO", w=0.7, c1=1.5, c2=1.5),
