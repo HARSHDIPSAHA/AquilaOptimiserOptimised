@@ -493,6 +493,10 @@ class ALO(Metaheuristic):
             return walk
         for iter in range(max_iter):
             fitness = np.array([func(antlions[i]) for i in range(pop_size)])
+           
+        if np.any(np.isnan(fitness)) or np.any(np.isinf(fitness)):
+            # Replace NaN/inf with a large number (penalty)
+            fitness = np.where(np.isnan(fitness) | np.isinf(fitness), 1e50, fitness)
             sorted_idx = np.argsort(fitness)
             elite_antlion = antlions[sorted_idx[0]].copy()
             I = 1 + 4 * iter / max_iter
@@ -500,6 +504,12 @@ class ALO(Metaheuristic):
             ub_iter = ub / I
             for i in range(pop_size):
                 probs = 1.0 / (fitness + 1e-12)
+                probs_sum = np.sum(probs)
+                if probs_sum == 0 or np.any(np.isnan(probs)):
+                    
+                    probs = np.ones(pop_size) / pop_size
+                else:
+                    probs /= probs_sum
                 probs /= probs.sum()
                 selected_idx = np.random.choice(pop_size, p=probs)
                 selected_antlion = antlions[selected_idx]
