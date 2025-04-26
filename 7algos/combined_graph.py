@@ -645,14 +645,14 @@ def get_cec_functions(dim):
     funcs = []
     
     # CEC 2014 (F1-F30)
-    # for fid in range(1, 31):
-    #     func_class = getattr(cec2014, f"F{fid}2014")
-    #     funcs.append(func_class(ndim=dim))
+    for fid in range(1, 31):
+        func_class = getattr(cec2014, f"F{fid}2014")
+        funcs.append(func_class(ndim=dim))
     
     # CEC 2017 (F1-F30)
-    # for fid in range(1, 29):
-    #     func_class = getattr(cec2017, f"F{fid}2017")
-    #     funcs.append(func_class(ndim=dim))
+    for fid in range(1, 29):
+        func_class = getattr(cec2017, f"F{fid}2017")
+        funcs.append(func_class(ndim=dim))
     
     # CEC 2020 (F1-F10)
     for fid in range(1, 11):
