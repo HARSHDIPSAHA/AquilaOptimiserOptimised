@@ -641,7 +641,7 @@ def get_cec_functions(dim):
         funcs.append(func_class(ndim=dim))
     
     # CEC 2017 (F1-F30)
-    for fid in range(1, 10):
+    for fid in range(1, 29):
         func_class = getattr(cec2017, f"F{fid}2017")
         funcs.append(func_class(ndim=dim))
     
@@ -715,33 +715,90 @@ def run_cec_comparison(dim=10, runs=10):
         plt.grid(True, which='both', linestyle='--', alpha=0.6)
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
         plt.xlim(left=0)
+        safe_name = func.__class__.__name__  # e.g., 'F12014'
+        filename = f'{safe_name}_comparison.png'
+
         plt.xticks(np.arange(0, 501, 50))
         plt.ylim(bottom=1e-10)
         plt.tight_layout()
-        plt.savefig(f'{func.name}_comparison.png', dpi=300, bbox_inches='tight')
+        plt.savefig(filename, dpi=300, bbox_inches='tight')
         plt.show()
 
 
 
 
-# def plot_results(results, func_name):
+if __name__ == "__main__":
+      run_cec_comparison(dim=10, runs=1)
+# def run_cec_comparison(func_type:CECFunction, dim=10, runs=3):
+#     algorithms = [
+#         PSO("PSO", w=0.7, c1=1.5, c2=1.5),
+#         GWO("GWO"),
+#         GOA(),
+#         EO(),
+#         SCA(),
+#         ALO(),
+#         MVAO(),
+#         AO(),
+#         MPA(),
+#     ]
+    
+#     results = {algo.name: [] for algo in algorithms}
+    
+#     for run in range(runs):
+#         print(f"Run {run+1}/{runs}")
+#         for algo in algorithms:
+#             convergence = algo.optimize(
+#                 func=lambda x: cec_function(x, func_type),
+#                 dim=dim,
+#                 lb=-100,
+#                 ub=100,
+#                 max_iter=500,
+#                 pop_size=30
+#             )
+#             results[algo.name].append(convergence)
+    
+#     # Plotting configuration
 #     plt.figure(figsize=(12, 8))
-#     colors = plt.cm.tab20(np.linspace(0, 1, len(results)))
+#     colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+#             '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22']
+#     markers = ['o', 's', 'D', '^', 'v', '<', '>', 'p', '*']
     
-#     for (algo_name, curves), color in zip(results.items(), colors):
-#         avg_curve = np.mean(curves, axis=0)
-#         plt.semilogy(avg_curve, label=algo_name, color=color, linewidth=2)
+#     # Plot each algorithm's convergence curve
+#     for idx, algo in enumerate(algorithms):
+#         # Average across runs if multiple runs
+#         avg_curve = np.mean(results[algo.name], axis=0)
+        
+#         # Plot with unique color and marker style
+#         plt.semilogy(avg_curve, 
+#                     label=algo.name,
+#                     color=colors[idx % len(colors)],
+#                     marker=markers[idx % len(markers)],
+#                     markevery=50,
+#                     linewidth=2,
+#                     alpha=0.8)
     
-#     plt.title(f'Algorithm Comparison on {func_name}', fontsize=14)
-#     plt.xlabel('Iteration')
-#     plt.ylabel('Fitness (log scale)')
-#     plt.legend()
-#     plt.grid(True)
-#     plt.savefig(f'{func_name}_comparison.png', dpi=300)
-#     plt.close()
+#     # Plot formatting
+#     plt.title(f'Algorithm Comparison on {func_type.name} Function', fontsize=14, pad=20)
+#     plt.xlabel('Iteration', fontsize=12, labelpad=10)
+#     plt.ylabel('Best Fitness (log scale)', fontsize=12, labelpad=10)
+#     plt.grid(True, which='both', linestyle='--', alpha=0.6)
+#     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+    
+#     # Axis limits and ticks
+#     plt.xlim(left=0)
+#     plt.xticks(np.arange(0, 501, 50))
+#     plt.ylim(bottom=1e-10)  # Adjust based on your function's range
+    
+#     # Save and show
+#     plt.tight_layout()
+#     plt.savefig(f'{func_type.name}_comparison.png', dpi=300, bbox_inches='tight')
 #     plt.show()
 
-if __name__ == "__main__":
-    run_cec_comparison(dim=10, runs=3)
+
+
+
+# if __name__ == "__main__":
+#     run_cec_comparison(CECFunction.F10)
+    
 
 
