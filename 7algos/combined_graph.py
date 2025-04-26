@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from enum import Enum
 import math
 import matplotlib
+from scipy.special import gamma
 matplotlib.use("TkAgg")
 
 # CEC Benchmark Functions
@@ -295,8 +296,7 @@ class MVAO(Metaheuristic):
                         
                         # Lévy flight calculation
                         beta = self.params['beta']
-                        sigma = (math.gamma(1+beta)*math.sin(math.pi*beta/2) /
-                                (math.gamma((1+beta)/2)*beta*2**((beta-1)/2)))**(1/beta)
+                        sigma = (gamma(1 + beta) * np.sin(np.pi * beta / 2) /(gamma((1 + beta) / 2) * beta * 2**((beta - 1) / 2)))**(1 / beta)
                         u = np.random.randn(dim) * sigma
                         v = np.random.randn(dim)
                         levy = 0.01 * u / np.abs(v)**(1/beta)
@@ -365,8 +365,7 @@ class AO(Metaheuristic):
                         
                         # Lévy flight calculation
                         beta = self.params['beta']
-                        sigma = (np.math.gamma(1+beta)*np.sin(np.pi*beta/2) /
-                                (np.math.gamma((1+beta)/2)*beta*2**((beta-1)/2)))**(1/beta)
+                        sigma = (gamma(1 + beta) * np.sin(np.pi * beta / 2) /(gamma((1 + beta) / 2) * beta * 2**((beta - 1) / 2)))**(1 / beta)
                         u = np.random.randn(dim) * sigma
                         v = np.random.randn(dim)
                         levy = 0.01 * u / np.abs(v)**(1/beta)
@@ -557,7 +556,7 @@ class AO(Metaheuristic):
                         x = r * np.sin(theta)
                         y = r * np.cos(theta)
                         beta = self.params['beta']
-                        sigma = (np.math.gamma(1+beta)*np.sin(np.pi*beta/2)/(np.math.gamma((1+beta)/2)*beta*2**((beta-1)/2)))**(1/beta)
+                        sigma = (gamma(1 + beta) * np.sin(np.pi * beta / 2) /(gamma((1 + beta) / 2) * beta * 2**((beta - 1) / 2)))**(1 / beta)
                         u = np.random.randn(dim) * sigma
                         v = np.random.randn(dim)
                         levy = 0.01 * u / np.abs(v)**(1/beta)
@@ -589,7 +588,7 @@ class MPA(Metaheuristic):
         convergence = np.zeros(max_iter)
         def levy(dim):
             beta = 1.5
-            sigma = (np.math.gamma(1+beta)*np.sin(np.pi*beta/2)/(np.math.gamma((1+beta)/2)*beta*2**((beta-1)/2)))**(1/beta)
+            sigma = (gamma(1 + beta) * np.sin(np.pi * beta / 2) /(gamma((1 + beta) / 2) * beta * 2**((beta - 1) / 2)))**(1 / beta)
             u = np.random.randn(dim) * sigma
             v = np.random.randn(dim)
             return u / (np.abs(v)**(1/beta))
@@ -646,14 +645,14 @@ def get_cec_functions(dim):
     funcs = []
     
     # CEC 2014 (F1-F30)
-    for fid in range(1, 31):
-        func_class = getattr(cec2014, f"F{fid}2014")
-        funcs.append(func_class(ndim=dim))
+    # for fid in range(1, 31):
+    #     func_class = getattr(cec2014, f"F{fid}2014")
+    #     funcs.append(func_class(ndim=dim))
     
     # CEC 2017 (F1-F30)
-    for fid in range(1, 29):
-        func_class = getattr(cec2017, f"F{fid}2017")
-        funcs.append(func_class(ndim=dim))
+    # for fid in range(1, 29):
+    #     func_class = getattr(cec2017, f"F{fid}2017")
+    #     funcs.append(func_class(ndim=dim))
     
     # CEC 2020 (F1-F10)
     for fid in range(1, 11):
@@ -732,7 +731,7 @@ def run_cec_comparison(dim=10, runs=10):
         plt.ylim(bottom=1e-10)
         plt.tight_layout()
         plt.savefig(filename, dpi=300, bbox_inches='tight')
-        plt.show()
+        # plt.show()
 
 
 
