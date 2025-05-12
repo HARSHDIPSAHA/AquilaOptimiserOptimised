@@ -1,4 +1,3 @@
-# AquilaOptimiserOptimised
 
 https://www.overleaf.com/project/67ef9b047b511c4f9aa94c7f
 
