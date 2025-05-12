@@ -35,14 +35,26 @@ AquilaOptimiserOptimised/
 │   ├── GOA.py                 # Implementation of the Grasshopper Optimization Algorithm
 │   ├── PSO.py                 # Implementation of the Particle Swarm Optimization
 │   ├── tempCodeRunnerFile.py  # Temporary code runner file
+|   ├── Comparison graphs of all benchmark functions 
 ├── MVAO/
 │   ├── 60kval(modified).ipynb # Jupyter notebook for a modified version of the Aquila Optimizer
+|   ├── AQUILA_OPTIMISER_2025  # Our research paper
 ├── Variants_Comparison/
 │   ├── Modified.py            # Comparison of modified algorithm variants
 │   ├── wilcoxon_results.csv   # Statistical results for Wilcoxon tests
 ├── matrixEval_vs_cec/
 │   ├── README.md              # Notes on benchmark evaluations
 │   ├── wilcoxon_results_all_pairs.csv # Statistical results for all pairs
+├── mvao_on_engineering_problems/
+|   ├── clutch_brake_design.py
+|   ├── plot_speed_reducer.py
+|   ├── pressure_vessel.py
+|   ├── speed_reducer.py
+|   ├── spring_design.py
+|   ├── truss_design.py
+├── original_aquila/
+|   ├── aquila.py            # Original Aquila optimizer code
+|   ├── main aquila.pdf      # Original Aquila Base Paper
 ```
 
 ### Detailed File Descriptions
