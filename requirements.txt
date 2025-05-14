@@ -1,0 +1,5 @@
+opfunu==1.0.1
+scipy
+matplotlib==3.8.4
+numpy==1.26.1
+pandas==2.2.3
